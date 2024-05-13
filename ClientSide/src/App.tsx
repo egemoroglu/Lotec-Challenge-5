@@ -8,7 +8,6 @@ function App() {
 
 
   return (
-    <>
     <div className="App">
       <div className='navbar'>
         <h2>Todo App</h2>
@@ -21,8 +20,6 @@ function App() {
         </Routes>
       </Router>
     </div>
-      
-    </>
   )
 }
 
