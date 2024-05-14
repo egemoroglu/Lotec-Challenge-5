@@ -17,9 +17,9 @@ class UserRepository implements UserInterface {
         return user;
     }
 
-    async getUserById(UserId: string): Promise<User | null> {
+    async getUserByUsername(username: string): Promise<User | null> {
         // implementation
-        const temp = await this.db.getUserById(UserId);
+        const temp = await this.db.getUserByUsername(username);
         if (temp !== undefined) {
             const user = new User(temp.userId, temp.username, temp.password);
             return user;
@@ -32,3 +32,4 @@ class UserRepository implements UserInterface {
         await this.db.deleteUser(UserId);
     }
 }
+export default UserRepository;

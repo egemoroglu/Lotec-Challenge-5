@@ -33,10 +33,16 @@ export default class DynamoDBService{
         const todo = items?.find((item: any) => item.todoId === todoId);
         return todo;
     }
+
+    async getTodosByUsername(username: string){
+        const items = await this.getItems('Todo');
+        return items?.filter((item: any) => item.username === username) ?? [];
+        
+    }
     //Get the User with the given id using getItems method from DynamoDB
-    async getUserById(userId: string){
+    async getUserByUsername(username: string){
         const items = await this.getItems('User');
-        const user = items?.find((item: any) => item.userId === userId);
+        const user = items?.find((item: any) => item.username === username);
         return user;
     }
 

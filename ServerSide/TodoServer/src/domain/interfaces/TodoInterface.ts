@@ -3,6 +3,7 @@ import Todo from "../entities/Todo";
 interface TodoInteface{
     createTodo(title: string, username: string, done: boolean): Promise<Todo>;
     getTodoById(todoId: string): Promise<Todo | null>;
+    getTodosByUsername(username: string): Promise<Todo[] | null>;
     deleteTodoById(todoId: string): Promise<void>;
     updateTodoById(todoId: string, title: string): Promise<void>;
     markDone(todoId: string): Promise<void>;

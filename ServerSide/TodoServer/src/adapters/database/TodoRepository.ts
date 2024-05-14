@@ -29,6 +29,12 @@ class TodoRepository implements TodoInterface{
         }
         return null;
     }
+    async getTodosByUsername(username: string): Promise<Todo[] | null> {
+        // implementation
+        const items = await this.db.getTodosByUsername(username);
+        
+        return items ? [] : [];
+    }
 
     async deleteTodoById(todoId: string): Promise<void> {
         // implementation
@@ -51,3 +57,4 @@ class TodoRepository implements TodoInterface{
     }
 
 }
+export default TodoRepository;
