@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec vite-node server.ts",
     "build": "npx tsc",
-    "start": "nodemon --exec vite-node index.ts",
+    "start": "nodemon --exec vite-node server.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest"
   },
