@@ -169,17 +169,6 @@ export function Todo() {
                 Add
               </Button>
 
-              {/* Dropdown menu for filtering todos */}
-              {/* <select
-                className="todoDropdown"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-              >
-                <option value="all">All Tasks</option>
-                <option value="done">Done Task</option>
-                <option value="undones">Undone Tasks</option>
-              </select> */}
-
               {filteredTodos.length === 0 ? (
                 <p>No todos found</p>
               ) : (
