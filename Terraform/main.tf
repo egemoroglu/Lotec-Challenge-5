@@ -1,10 +1,22 @@
 terraform {
+    backend "s3" {
+    bucket = "lotec-challenge-5-egemoroglu-tfstate"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 3.76.1"
     }
   }
+}
+
+module "tf-state" {
+  source      = "./modules/tf-state"
+  bucket_name = local.bucket_name
+
 }
 
 resource "aws_dynamodb_table" "ege_todo" {
