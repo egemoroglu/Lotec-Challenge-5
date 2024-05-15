@@ -12,6 +12,7 @@ export const SignUpPage: React.FC = () => {
     const handleSignUp = async () => {
         try{
             await frontAdapter.signupUser(username, password);
+            alert("signup successful")
         }catch(err){
             alert('Error: User cannot be signed up');
         }

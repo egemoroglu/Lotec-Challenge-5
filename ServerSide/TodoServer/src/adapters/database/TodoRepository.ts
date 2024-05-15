@@ -33,7 +33,8 @@ class TodoRepository implements TodoInterface{
         // implementation
         const items = await this.db.getTodosByUsername(username);
         
-        return items ? [] : [];
+        const todos = items.map(item => new Todo(item.todoId, item.title, item.username, item.done));
+        return todos;
     }
 
     async deleteTodoById(todoId: string): Promise<void> {

@@ -33,7 +33,6 @@ export function Todo() {
     try {
       // Make API call to fetch todos for the signed-in user
       const data = await frontAdapter.fetchTodos(username);
-      console.log(data);
       if (data) {
         setTodos(data);
       } else {

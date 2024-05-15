@@ -37,7 +37,7 @@ export default class DynamoDBService{
     }
 
     async getTodosByUsername(username: string){
-        const items = await this.getItems(userTable);
+        const items = await this.getItems(todoTable);
         return items?.filter((item: any) => item.username === username) ?? [];
         
     }
