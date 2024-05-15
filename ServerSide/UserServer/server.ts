@@ -3,16 +3,18 @@ import path, {dirname} from 'path';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
-import UserRepository from './adapters/database/UserRepository'
+import cors from 'cors';
+import UserRepository from './src/adapters/database/UserRepository'
 
 const app: Express = express();
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, '../.env') })
+const __dirname = dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../../.env') })
 
-const port = process.env.PORT || 3000;
+const port = process.env.USER_SERVER_PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
 
 const userRepo: UserRepository = new UserRepository();
 

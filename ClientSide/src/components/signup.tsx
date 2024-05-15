@@ -1,13 +1,22 @@
 import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import {Button, Input} from 'antd';
+import FrontendAdapter from '../../../ServerSide/UserServer/src/adapters/FrontendAdapter/FrontendAdapter'
+
+const frontAdapter: FrontendAdapter = new FrontendAdapter();
 
 export const SignUpPage: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSignUp = async () => {
-        
+        try{
+            await frontAdapter.signupUser(username, password);
+        }catch(err){
+            alert('Error: User cannot be signed up');
+        }
+        setUsername("");
+        setPassword("");
     }
 
     return(

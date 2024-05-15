@@ -4,7 +4,7 @@ import { FrontendInterface } from '../../domain/interfaces/FrontendInterface';
 
 const baseURL = 'http://localhost:3000';
 
-export class FrontendAdapter implements FrontendInterface {
+export default class FrontendAdapter implements FrontendInterface {
     async signupUser(username: string, password: string): Promise<void> {
         try {
             await axios.post(`${baseURL}/signup`, {

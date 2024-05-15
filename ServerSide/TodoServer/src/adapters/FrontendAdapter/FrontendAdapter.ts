@@ -3,7 +3,7 @@ import { FrontendInterface } from '../../domain/interfaces/FrontendInterface';
 import Todo from '../../domain/entities/Todo';
 
 const baseURL = 'http://localhost:3001';
-export class FrontendAdapter implements FrontendInterface {
+export default class FrontendAdapter implements FrontendInterface {
 
     
 

@@ -1,12 +1,14 @@
 import AWS from 'aws-sdk'
 import dotenv from 'dotenv'
-import path , {dirname}from 'path'
+import path from 'path'
 import User from "../UserServer/src/domain/entities/User"
 import Todo from "../TodoServer/src/domain/entities/Todo"
 
-dotenv.config({ path: path.join(__dirname, '../../.env') })
+dotenv.config({ path: path.join(__dirname, '../.env') })
 
 const region = process.env.REGION;
+const todoTable = process.env.TODO_DB_NAME || "ege_todo";
+const userTable = process.env.USER_DB_NAME || "ege_user";
 
 export default class DynamoDBService{
     private dynamoDB: AWS.DynamoDB.DocumentClient;
@@ -29,19 +31,19 @@ export default class DynamoDBService{
 
     //Get the Todo with the Given id using getItems method from DynamoDB
     async getTodoById(todoId: string){
-        const items = await this.getItems('Todo');
+        const items = await this.getItems(todoTable);
         const todo = items?.find((item: any) => item.todoId === todoId);
         return todo;
     }
 
     async getTodosByUsername(username: string){
-        const items = await this.getItems('Todo');
+        const items = await this.getItems(userTable);
         return items?.filter((item: any) => item.username === username) ?? [];
         
     }
-    //Get the User with the given id using getItems method from DynamoDB
+    //Get the User with the given username using getItems method from DynamoDB
     async getUserByUsername(username: string){
-        const items = await this.getItems('User');
+        const items = await this.getItems('ege_user');
         const user = items?.find((item: any) => item.username === username);
         return user;
     }
@@ -50,7 +52,7 @@ export default class DynamoDBService{
     //add User to the DynamoDB
     async addUser(user: User){
         const params = {
-            TableName: 'User',
+            TableName: userTable,
             Item: {
                 userId: user.getUserId(),
                 username: user.getUsername(),
@@ -64,7 +66,7 @@ export default class DynamoDBService{
     //Delete user from DynamoDB
     async deleteUser(userId: string){
         const params = {
-            TableName: 'User',
+            TableName: userTable,
             Key: {
                 userId: userId
             }
@@ -76,7 +78,7 @@ export default class DynamoDBService{
     //Add Todo to DynamoDB
     async addTodo(todo: Todo){
         const params = {
-            TableName: 'Todo',
+            TableName: todoTable,
             Item: {
                 todoId: todo.getTodoId(),
                 title: todo.getTitle(),
@@ -91,7 +93,7 @@ export default class DynamoDBService{
     //Delete Todo from DynamoDB
     async deleteTodoById(todoId: string){
         const params = {
-            TableName: 'Todo',
+            TableName: todoTable,
             Key: {
                 todoId: todoId
             }
@@ -103,7 +105,7 @@ export default class DynamoDBService{
     //Update Todo in DynamoDB
     async updateTodoById(todoId: string, title: string){
         const params = {
-            TableName: 'Todo',
+            TableName: todoTable,
             Key: {
                 todoId: todoId
             },
@@ -119,7 +121,7 @@ export default class DynamoDBService{
     //Mark Todo as done in DynamoDB
     async markDone(todoId: string){
         const params = {
-            TableName: 'Todo',
+            TableName: todoTable,
             Key: {
                 todoId: todoId
             },
@@ -135,7 +137,7 @@ export default class DynamoDBService{
     //Mark Todo as undone in DynamoDB
     async markUndone(todoId: string){
         const params = {
-            TableName: 'Todo',
+            TableName: todoTable,
             Key: {
                 todoId: todoId
             },

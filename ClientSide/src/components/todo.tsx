@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Layout, Menu, Button, Input } from "antd";
-
+import FrontendAdapter from "../../../ServerSide/TodoServer/src/adapters/FrontendAdapter/FrontendAdapter"
+const frontAdapter: FrontendAdapter = new FrontendAdapter();
 const { Header, Sider, Content} = Layout;
 
 type Todo = {
@@ -32,12 +32,10 @@ export function Todo() {
   const fetchTodos = async () => {
     try {
       // Make API call to fetch todos for the signed-in user
-      const response = await axios.get(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/todos?username=${username}`
-      );
-      console.log(response.data);
-      if (response.data) {
-        setTodos(response.data);
+      const data = await frontAdapter.fetchTodos(username);
+      console.log(data);
+      if (data) {
+        setTodos(data);
       } else {
         setTodos([]);
       }
@@ -49,15 +47,7 @@ export function Todo() {
   const handleTaskAdd = async () => {
     try {
       // Make API call to add a new task
-      const response = await axios.post(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/todos`,
-        {
-          title: newTaskTitle,
-          username: username,
-          done: false,
-        }
-      );
-      console.log(response.data);
+      await frontAdapter.addTask(newTaskTitle, username, false)
       setNewTaskTitle("");
     } catch (error) {
       console.error("Error adding task:", error);
@@ -67,11 +57,7 @@ export function Todo() {
 
   const handleDeleteTask = async (todoId: string) => {
     try {
-      // Make API call to delete a task
-      const response = await axios.post(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/delete?todoId=${todoId}`
-      );
-      console.log(response.data);
+      await frontAdapter.deleteTask(todoId);
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -81,10 +67,7 @@ export function Todo() {
   const handleMarkDone = async (todoId: string) => {
     try {
       // Make API call to mark a task as done
-      const response = await axios.post(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/markdone?todoId=${todoId}`
-      );
-      console.log(response.data);
+      await frontAdapter.markDone(todoId);
     } catch (error) {
       console.error("Error marking task as done:", error);
     }
@@ -92,11 +75,7 @@ export function Todo() {
   };
   const handleMarkUndone = async (todoId: string) => {
     try {
-      // Make API call to mark a task as undone
-      const response = await axios.post(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/markUndone?todoId=${todoId}`
-      );
-      console.log(response.data);
+      await frontAdapter.markUndone(todoId);
     } catch (error) {
       console.error("Error marking task as undone:", error);
     }
@@ -106,14 +85,7 @@ export function Todo() {
   const handleUpdateTask = async (todoId: string, updatedTaskTitle: string) => {
     try {
       // Make API call to update the title of a task
-      const response = await axios.post(
-        `https://xr2tx2mgwj.us-east-1.awsapprunner.com/update`,
-        {
-          todoId: todoId,
-          title: updatedTaskTitle,
-        }
-      );
-      console.log(response.data);
+      await frontAdapter.updateTask(todoId, updatedTaskTitle);
       setEditModeId(null);
     } catch (error) {
       console.error("Error updating task:", error);
