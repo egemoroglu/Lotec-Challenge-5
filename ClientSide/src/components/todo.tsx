@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Layout, Menu, Button, Input } from "antd";
-import FrontendAdapter from "../../../ServerSide/TodoServer/src/adapters/FrontendAdapter/FrontendAdapter"
+import FrontendAdapter from "../../../ServerSide/TodoServer/src/FrontendAdapter/FrontendAdapter"
 const frontAdapter: FrontendAdapter = new FrontendAdapter();
 const { Header, Sider, Content} = Layout;
 

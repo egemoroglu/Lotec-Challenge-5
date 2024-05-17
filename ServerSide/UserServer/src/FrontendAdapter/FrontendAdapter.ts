@@ -1,7 +1,6 @@
-import User from '../../domain/entities/User';
+import User from '../domain/entities/User';
 import axios from 'axios';
-import { FrontendInterface } from '../../domain/interfaces/FrontendInterface';
-import { assert } from 'console';
+import { FrontendInterface } from '../domain/interfaces/FrontendInterface';
 
 const baseURL = 'http://localhost:3000';
 

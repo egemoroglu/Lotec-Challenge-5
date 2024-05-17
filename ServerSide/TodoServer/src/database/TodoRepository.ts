@@ -1,6 +1,6 @@
-import Todo from "../../domain/entities/Todo";
-import TodoInterface from "../../domain/interfaces/TodoInterface";
-import DynamoDBService from "../../../../config/database";
+import Todo from "../domain/entities/Todo";
+import TodoInterface from "../domain/interfaces/TodoInterface";
+import DynamoDBService from "../config/database"
 import {v4 as uuidv4} from "uuid";
 
 

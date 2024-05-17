@@ -1,14 +1,12 @@
 import AWS from 'aws-sdk'
 import dotenv from 'dotenv'
 import path from 'path'
-import User from "../UserServer/src/domain/entities/User"
-import Todo from "../TodoServer/src/domain/entities/Todo"
+import Todo from "../domain/entities/Todo"
 
-dotenv.config({ path: path.join(__dirname, '../.env') })
+dotenv.config({ path: path.join(__dirname, '../../../.env') })
 
 const region = process.env.REGION;
 const todoTable = process.env.TODO_DB_NAME || "ege_todo";
-const userTable = process.env.USER_DB_NAME || "ege_user";
 
 export default class DynamoDBService{
     private dynamoDB: AWS.DynamoDB.DocumentClient;
@@ -40,39 +38,6 @@ export default class DynamoDBService{
         const items = await this.getItems(todoTable);
         return items?.filter((item: any) => item.username === username) ?? [];
         
-    }
-    //Get the User with the given username using getItems method from DynamoDB
-    async getUserByUsername(username: string){
-        const items = await this.getItems('ege_user');
-        const user = items?.find((item: any) => item.username === username);
-        return user;
-    }
-
-
-    //add User to the DynamoDB
-    async addUser(user: User){
-        const params = {
-            TableName: userTable,
-            Item: {
-                userId: user.getUserId(),
-                username: user.getUsername(),
-                password: user.getPassword()
-            }
-        }
-
-        await this.dynamoDB.put(params).promise();
-    }
-
-    //Delete user from DynamoDB
-    async deleteUser(userId: string){
-        const params = {
-            TableName: userTable,
-            Key: {
-                userId: userId
-            }
-        }
-
-        await this.dynamoDB.delete(params).promise();
     }
 
     //Add Todo to DynamoDB

@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "outDir": "./build",
+      "rootDir": "./",
+      "module": "commonjs",
+      "target": "es6",
+      "esModuleInterop": true,
+      "strict": true,
+      "baseUrl": "./",
+      "paths": {
+        "@config/*": ["./config/*"]
+      }
+    },
+    "include": ["src/**/*.ts", "./config/**/*.ts", "server.ts"],
+    "exclude": ["node_modules", "**/*.test.ts"]
+  }

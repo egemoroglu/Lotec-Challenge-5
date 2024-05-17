@@ -57,3 +57,9 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore built JavaScript files
+/build/*.js
+
+# Ignore zip files
+/*.zip

@@ -1,6 +1,6 @@
-import UserInterface from "../../domain/interfaces/UserInterface";
-import User from "../../domain/entities/User";
-import DynamoDBService from "../../../../config/database"
+import UserInterface from "../domain/interfaces/UserInterface";
+import User from "../domain/entities/User";
+import DynamoDBService from "../config/database"
 import {v4 as uuidv4} from "uuid";
 
 class UserRepository implements UserInterface {

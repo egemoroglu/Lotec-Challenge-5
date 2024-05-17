@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Link, useNavigate} from 'react-router-dom';
 import { Button, Input } from "antd";
-import FrontendAdapter from "../../../ServerSide/UserServer/src/adapters/FrontendAdapter/FrontendAdapter";
+import FrontendAdapter from "../../../ServerSide/UserServer/src/FrontendAdapter/FrontendAdapter"
 
 const frontAdapter: FrontendAdapter = new FrontendAdapter();
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { FrontendInterface } from '../../domain/interfaces/FrontendInterface';
-import Todo from '../../domain/entities/Todo';
+import { FrontendInterface } from '../domain/interfaces/FrontendInterface';
+import Todo from '../domain/entities/Todo';
 
 const baseURL = 'http://localhost:3001';
 export default class FrontendAdapter implements FrontendInterface {
