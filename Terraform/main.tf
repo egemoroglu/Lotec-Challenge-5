@@ -80,11 +80,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "egemoroglu-lotec-
 
 resource "null_resource" "sync_files_to_s3" {
   triggers = {
-    bucket_id = aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket
+    always_run = "${timestamp()}"
   }
 
   provisioner "local-exec" {
-    command = "aws s3 sync ../ClientSide/dist s3://${aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket}"
+    command = "cd ../ClientSide && npm run build && aws s3 sync ../ClientSide/dist s3://${aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket}"
 
   }
 
@@ -169,15 +169,16 @@ resource "aws_s3_bucket" "egemoroglu-lambda-bucket" {
 
 resource "null_resource" "zip_and_sync_todo" {
   triggers = {
-    bucket_id = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
+    always_run = "${timestamp()}"
+
   }
 
   provisioner "local-exec" {
-    command = "bash -c ./../ServerSide/zip_servers.sh"
-  }
+    command = "cd ../ServerSide/TodoServer && npm install && npm run build"
 
+  }
   provisioner "local-exec" {
-    command = "aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+    command = "zip -j ../ServerSide/todo-server.zip ../ServerSide/TodoServer/build/server.js && aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
 
   }
 
@@ -185,45 +186,53 @@ resource "null_resource" "zip_and_sync_todo" {
 
 resource "null_resource" "zip_and_sync_user" {
   triggers = {
-    bucket_id = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
+    always_run = "${timestamp()}"
 
   }
-
   provisioner "local-exec" {
-    command = "bash -c ./../ServerSide/zip_servers.sh"
+    command = "cd ../ServerSide/UserServer && npm install && npm run build"
+
   }
-
   provisioner "local-exec" {
-    command = "aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+    command = "zip -j ../ServerSide/user-server.zip ../ServerSide/UserServer/build/server.js && aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
 
   }
 
 }
 
-resource "aws_iam_role" "lambda-role" {
-  name = "lambda-role"
+data "external" "todo_server_zip_hash" {
+  program    = ["bash", "-c", "shasum -a 256 ../ServerSide/todo-server.zip | awk '{print \"{\\\"hash\\\": \\\"\" $1 \"\\\"}\"}'"]
+  depends_on = [null_resource.zip_and_sync_todo]
+}
 
-  assume_role_policy = jsondecode({
-    version = "2012-10-17"
-    statement = [
+data "external" "user_server_zip_hash" {
+  program    = ["bash", "-c", "shasum -a 256 ../ServerSide/user-server.zip | awk '{print \"{\\\"hash\\\": \\\"\" $1 \"\\\"}\"}'"]
+  depends_on = [null_resource.zip_and_sync_user]
+}
+
+resource "aws_iam_role" "egemoroglu-lambda-role" {
+  name = "egemoroglu-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
-        action = "sts:AssumeRole",
-        effect = "Allow",
-        sid = "aws-iam-role",
-        principals = {
-          service = "lambda.amazonaws.com"
-        
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+
         }
       }
     ]
   })
-  
+
 }
 resource "aws_iam_role_policy" "lambda-policy" {
   name = "lambda-policy"
-  role = aws_iam_role.lambda-role.id
+  role = aws_iam_role.egemoroglu-lambda-role.id
 
-  policy = jsondecode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
@@ -233,7 +242,7 @@ resource "aws_iam_role_policy" "lambda-policy" {
           "logs:PutLogEvents"
         ],
         Effect   = "Allow",
-        Resource = "arn:aws:logs:*:*"
+        Resource = "arn:aws:logs:*:*:*"
       },
       {
         Action = [
@@ -243,128 +252,138 @@ resource "aws_iam_role_policy" "lambda-policy" {
         Resource = "${aws_s3_bucket.egemoroglu-lambda-bucket.arn}/*"
       }
     ]
-  
+
   })
-  
+
 }
 
-resource "aws_lambda_function" "egemoroglu-todo-server" {
-  filename= "s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}/todo-server.zip"
-  function_name = "egemoroglu-todo-server"
-  role = aws_iam_role.lambda-role.arn
-  handler = "handler.handler"
-  runtime = "nodejs18.x"
-  source_code_hash = filebase64sha256("../ServerSide/todo-server.zip")
 
-  depends_on = [ 
+resource "aws_lambda_function" "egemoroglu-todo-server" {
+  function_name    = "egemoroglu-todo-server"
+  s3_bucket        = aws_s3_bucket.egemoroglu-lambda-bucket.id
+  s3_key           = "todo-server.zip"
+  role             = aws_iam_role.egemoroglu-lambda-role.arn
+  handler          = "server.handler"
+  runtime          = "nodejs18.x"
+  source_code_hash = data.external.todo_server_zip_hash.result.hash
+
+  depends_on = [
     null_resource.zip_and_sync_todo
-   ]
-  
+  ]
+
 }
 
 resource "aws_lambda_function" "egemoroglu-user-server" {
-  filename= "s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}/user-server.zip"
-  function_name = "egemoroglu-user-server"
-  role = aws_iam_role.lambda-role.arn
-  handler = "handler.handler"
-  runtime = "nodejs18.x"
-  source_code_hash = filebase64sha256("../ServerSide/user-server.zip")
+  function_name    = "egemoroglu-user-server"
+  s3_bucket        = aws_s3_bucket.egemoroglu-lambda-bucket.id
+  s3_key           = "user-server.zip"
+  role             = aws_iam_role.egemoroglu-lambda-role.arn
+  handler          = "server.handler"
+  runtime          = "nodejs18.x"
+  source_code_hash = data.external.user_server_zip_hash.result.hash
 
-  depends_on = [ 
+
+  depends_on = [
     null_resource.zip_and_sync_user
-   ]
-  
+  ]
+
 }
 
-resource "aws_api_gateway_rest_api" "egemoroglu-todo-api" {
-  name = "egemoroglu-todo-api"
-  description = "This is the API for the todo application"
-  
+resource "aws_apigatewayv2_api" "egemoroglu-user-api" {
+  name          = "egemoroglu-user-api"
+  protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["Authorization", "Content-Type", "X-Amz-Date", "X-Amz-Security-Token", "X-Api-Key"]
+
+  }
+
 }
 
-resource "aws_api_gateway_resource" "egemoroglu-todo-api-resource" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-todo-api.id
-  parent_id = aws_api_gateway_rest_api.egemoroglu-todo-api.root_resource_id
-  path_part = "todo"
-  
+resource "aws_apigatewayv2_integration" "egemoroglu-user-integration" {
+  api_id                 = aws_apigatewayv2_api.egemoroglu-user-api.id
+  integration_type       = "AWS_PROXY"
+  integration_method     = "ANY"
+  integration_uri        = aws_lambda_function.egemoroglu-user-server.arn
+  payload_format_version = "2.0"
+
 }
 
-resource "aws_api_gateway_method" "egemoroglu-todo-method" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-todo-api.id
-  resource_id = aws_api_gateway_resource.egemoroglu-todo-api-resource.id
-  http_method = "GET"
-  authorization = "NONE"
-  
+resource "aws_apigatewayv2_route" "user-route" {
+  api_id    = aws_apigatewayv2_api.egemoroglu-user-api.id
+  route_key = "ANY /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-user-integration.id}"
+
 }
 
-resource "aws_api_gateway_integration" "egemoroglu-todo-integration" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-todo-api.id
-  resource_id = aws_api_gateway_resource.egemoroglu-todo-api-resource.id
-  http_method = aws_api_gateway_method.egemoroglu-todo-method.http_method
-  integration_http_method = "GET"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.egemoroglu-todo-server.invoke_arn
+resource "aws_apigatewayv2_stage" "egemoroglu-user-stage" {
+  api_id      = aws_apigatewayv2_api.egemoroglu-user-api.id
+  name        = "$default"
+  auto_deploy = true
+
 }
 
-resource "aws_lambda_permission" "todogw-lambda" {
-  statement_id = "AllowAPIGatewayInvoke"
-  action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.egemoroglu-todo-server.function_name
-  principal = "apigateway.amazonaws.com"
-  source_arn = "${aws_api_gateway_rest_api.egemoroglu-todo-api.execution_arn}/*/*"
-  
+resource "aws_lambda_permission" "egemoroglu-user-permission" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.egemoroglu-user-server.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.egemoroglu-user-api.execution_arn}/*/*/*"
+
 }
 
-output "todo-api-url" {
-  value = "${aws_api_gateway_rest_api.egemoroglu-todo-api.execution_arn}/todos"
-  
+resource "aws_apigatewayv2_api" "egemoroglu-todo-api" {
+  name          = "egemoroglu-todo-api"
+  protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["Authorization", "Content-Type", "X-Amz-Date", "X-Amz-Security-Token", "X-Api-Key"]
+
+  }
+
 }
 
-resource "aws_api_gateway_rest_api" "egemoroglu-user-api" {
-  name = "egemoroglu-user-api"
-  description = "This is the API for the user application"
-  
+resource "aws_apigatewayv2_integration" "egemoroglu-todo-integration" {
+  api_id                 = aws_apigatewayv2_api.egemoroglu-todo-api.id
+  integration_type       = "AWS_PROXY"
+  integration_method     = "ANY"
+  integration_uri        = aws_lambda_function.egemoroglu-todo-server.arn
+  payload_format_version = "2.0"
 }
 
-resource "aws_api_gateway_resource" "egemoroglu-user-api-resource" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-user-api.id
-  parent_id = aws_api_gateway_rest_api.egemoroglu-user-api.root_resource_id
-  path_part = "user"
-  
+resource "aws_apigatewayv2_route" "todo-route" {
+  api_id    = aws_apigatewayv2_api.egemoroglu-todo-api.id
+  route_key = "ANY /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-todo-integration.id}"
 }
 
-resource "aws_api_gateway_method" "egemoroglu-user-method" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-user-api.id
-  resource_id = aws_api_gateway_resource.egemoroglu-user-api-resource.id
-  http_method = "GET"
-  authorization = "NONE"
-  
+resource "aws_apigatewayv2_stage" "egemoroglu-todo-stage" {
+  api_id      = aws_apigatewayv2_api.egemoroglu-todo-api.id
+  name        = "$default"
+  auto_deploy = true
+
 }
 
-resource "aws_api_gateway_integration" "egemoroglu-user-integration" {
-  rest_api_id = aws_api_gateway_rest_api.egemoroglu-user-api.id
-  resource_id = aws_api_gateway_resource.egemoroglu-user-api-resource.id
-  http_method = aws_api_gateway_method.egemoroglu-user-method.http_method
-  integration_http_method = "GET"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.egemoroglu-user-server.invoke_arn
+resource "aws_lambda_permission" "egemoroglu-todo-permission" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.egemoroglu-todo-server.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.egemoroglu-todo-api.execution_arn}/*/*/*"
+
 }
 
-resource "aws_lambda_permission" "usergw-lambda" {
-  statement_id = "AllowAPIGatewayInvoke"
-  action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.egemoroglu-user-server.function_name
-  principal = "apigateway.amazonaws.com"
-  source_arn = "${aws_api_gateway_rest_api.egemoroglu-user-api.execution_arn}/*/*"
-  
+output "user_api_url" {
+  value = aws_apigatewayv2_api.egemoroglu-user-api.api_endpoint
+
 }
 
-output "user-api-url" {
-  value = "${aws_api_gateway_rest_api.egemoroglu-user-api.execution_arn}/users"
-  
+output "todo_api_url" {
+  value = aws_apigatewayv2_api.egemoroglu-todo-api.api_endpoint
+
 }
-
-
 
 resource "aws_dynamodb_table" "ege_todo" {
   name         = "ege_todo"

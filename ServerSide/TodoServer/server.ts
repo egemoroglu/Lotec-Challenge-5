@@ -8,7 +8,7 @@ import TodoRepository from './src/database/TodoRepository'
 
 
 const app: Express = express();
-dotenv.config({ path: path.join(__dirname, '../../.env') })
+dotenv.config({ path: path.join(__dirname, '../.env') })
 
 const port = process.env.TODO_SERVER_PORT || 3001;
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -86,4 +86,4 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-export const handler = serverless(app);
+module.exports.handler = serverless(app);

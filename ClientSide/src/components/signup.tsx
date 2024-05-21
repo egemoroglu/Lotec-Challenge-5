@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import {Button, Input} from 'antd';
-import FrontendAdapter from '../../../ServerSide/UserServer/src/FrontendAdapter/FrontendAdapter'
+import axios from 'axios';
 
-const frontAdapter: FrontendAdapter = new FrontendAdapter();
+const baseUrl = "https://hf6ib46e75.execute-api.us-east-1.amazonaws.com";
 
 export const SignUpPage: React.FC = () => {
     const [username, setUsername] = useState("");
@@ -11,8 +11,12 @@ export const SignUpPage: React.FC = () => {
 
     const handleSignUp = async () => {
         try{
-            await frontAdapter.signupUser(username, password);
+            const response = await axios.post(`${baseUrl}/signup`, {
+                username: username,
+                password: password
+            });
             alert("signup successful")
+            console.log(response.data);
         }catch(err){
             alert('Error: User cannot be signed up');
         }

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec vite-node server.ts",
-    "build": "npx tsc --outDir build",
+    "build": "webpack",
     "start": "nodemon --exec vite-node server.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest"
@@ -35,6 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "dotenv": "^16.4.5",
+    "dotenv-webpack": "^8.1.0",
     "eslint": "^8.57.0",
     "jsdom": "^24.0.0",
     "nodemon": "^3.1.0",

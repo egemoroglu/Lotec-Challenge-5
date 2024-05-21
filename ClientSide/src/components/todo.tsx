@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Layout, Menu, Button, Input } from "antd";
-import FrontendAdapter from "../../../ServerSide/TodoServer/src/FrontendAdapter/FrontendAdapter"
-const frontAdapter: FrontendAdapter = new FrontendAdapter();
+import axios from 'axios';
 const { Header, Sider, Content} = Layout;
+
+const baseUrl = "https://eq230pbjte.execute-api.us-east-1.amazonaws.com";
 
 type Todo = {
   todoId: string;
@@ -32,51 +33,62 @@ export function Todo() {
   const fetchTodos = async () => {
     try {
       // Make API call to fetch todos for the signed-in user
-      const data = await frontAdapter.fetchTodos(username);
-      if (data) {
-        setTodos(data);
-      } else {
+      const response = await axios.get(`${baseUrl}/todos?username=${username}`);
+      console.log(response.data);
+      if(response.data){
+        setTodos(response.data);
+      }else{
         setTodos([]);
-      }
+      } 
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      console.error('Error fetching todos:', error);
     }
   };
 
   const handleTaskAdd = async () => {
     try {
       // Make API call to add a new task
-      await frontAdapter.addTask(newTaskTitle, username, false)
-      setNewTaskTitle("");
+      const response = await axios.post(`${baseUrl}/todos`, {
+        title: newTaskTitle,
+        username: username,
+        done: false
+      });
+      console.log(response.data);
+      setNewTaskTitle('');
     } catch (error) {
-      console.error("Error adding task:", error);
+      console.error('Error adding task:', error);
     }
     setFetchTrigger(!fetchTrigger);
   };
 
   const handleDeleteTask = async (todoId: string) => {
     try {
-      await frontAdapter.deleteTask(todoId);
+      // Make API call to delete a task
+      const response = await axios.post(`${baseUrl}/delete?todoId=${todoId}`);
+      console.log(response.data);
     } catch (error) {
-      console.error("Error deleting task:", error);
+      console.error('Error deleting task:', error);
     }
-    setFetchTrigger(!fetchTrigger);
+    setFetchTrigger(!fetchTrigger)
   };
 
   const handleMarkDone = async (todoId: string) => {
-    try {
+    try{
       // Make API call to mark a task as done
-      await frontAdapter.markDone(todoId);
+      const response = await axios.post(`${baseUrl}/markdone?todoId=${todoId}`);
+      console.log(response.data);
     } catch (error) {
-      console.error("Error marking task as done:", error);
+      console.error('Error marking task as done:', error);
     }
-    setFetchTrigger(!fetchTrigger);
+    setFetchTrigger(!fetchTrigger)
   };
   const handleMarkUndone = async (todoId: string) => {
-    try {
-      await frontAdapter.markUndone(todoId);
+    try{
+      // Make API call to mark a task as undone
+      const response = await axios.post(`${baseUrl}/markUndone?todoId=${todoId}`);
+      console.log(response.data);
     } catch (error) {
-      console.error("Error marking task as undone:", error);
+      console.error('Error marking task as undone:', error);
     }
     setFetchTrigger(!fetchTrigger);
   };
@@ -84,12 +96,16 @@ export function Todo() {
   const handleUpdateTask = async (todoId: string, updatedTaskTitle: string) => {
     try {
       // Make API call to update the title of a task
-      await frontAdapter.updateTask(todoId, updatedTaskTitle);
+      const response = await axios.post(`${baseUrl}/update`, {
+        todoId: todoId,
+        title: updatedTaskTitle
+      });
+      console.log(response.data);
       setEditModeId(null);
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error('Error updating task:', error);
     }
-    setFetchTrigger(!fetchTrigger);
+    setFetchTrigger(!fetchTrigger)
   };
   const handleMenuSelect = ({ key }: { key: string }) => {
     setFilter(key); // Update filter state based on menu selection

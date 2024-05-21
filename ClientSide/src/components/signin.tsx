@@ -1,10 +1,9 @@
 import React, {useState} from "react";
 import {Link, useNavigate} from 'react-router-dom';
+import axios from 'axios';
 import { Button, Input } from "antd";
-import FrontendAdapter from "../../../ServerSide/UserServer/src/FrontendAdapter/FrontendAdapter"
 
-const frontAdapter: FrontendAdapter = new FrontendAdapter();
-
+const baseUrl = "https://hf6ib46e75.execute-api.us-east-1.amazonaws.com";
 
 export const SignInPage: React.FC = () => {
     const [username, setUsername] = useState("");
@@ -13,8 +12,11 @@ export const SignInPage: React.FC = () => {
 
     const handleSignIn = async () => {
         try {
-            await frontAdapter.signinUser(username, password);
-            console.log("Sending the request");
+            const response = await axios.post(`${baseUrl}/signin`, {
+                username: username,
+                password: password
+            });
+            console.log(response.data);
             navigate("/todos", {state: {username: username}});
                
         } catch (error) {
