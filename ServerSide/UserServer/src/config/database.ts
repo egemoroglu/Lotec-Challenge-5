@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import User from "../domain/entities/User"
 
-dotenv.config({ path: path.join(__dirname, '../../../.env') })
+dotenv.config({ path: path.join(__dirname, '../../.env') })
 
 const region = process.env.REGION;
 console.log("Region: ", region);
@@ -39,6 +39,7 @@ export default class DynamoDBService{
 
     //add User to the DynamoDB
     async addUser(user: User){
+        console.log("addUser called");
         const params = {
             TableName: userTable,
             Item: {

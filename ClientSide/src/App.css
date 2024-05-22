@@ -30,6 +30,24 @@
   height: 100vh;
 
 }
+.email-input{
+  padding: 0.5rem;
+  margin: 0.5rem;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: rgba(54, 54, 54, 0.87);
+  background-color: #ffffff;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+}
 .username-input {
   padding: 0.5rem;
   margin: 0.5rem;

@@ -301,6 +301,78 @@ resource "aws_apigatewayv2_api" "egemoroglu-user-api" {
 
 }
 
+
+resource "aws_cognito_user_pool" "egemoroglu-user-pool" {
+  name = "egemoroglu-user-pool"
+  schema {
+    attribute_data_type = "String"
+    name                 = "nickname"
+    required             = true
+  }
+  auto_verified_attributes = ["email"]
+  
+}
+
+resource "aws_cognito_user_pool_client" "egemoroglu-user-pool-client" {
+  name = "egemoroglu-user-pool-client"
+  user_pool_id = aws_cognito_user_pool.egemoroglu-user-pool.id
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH"
+  ]
+
+  prevent_user_existence_errors = "ENABLED"
+  
+}
+
+resource "aws_apigatewayv2_authorizer" "cognito-authorizer" {
+  api_id          = aws_apigatewayv2_api.egemoroglu-user-api.id
+  authorizer_type = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.egemoroglu-user-pool-client.id]
+    issuer   = "https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.egemoroglu-user-pool.id}"
+  }
+
+  authorizer_uri = "arn:aws:apigateway:us-east-1:cognito-idp:path/userpools/${aws_cognito_user_pool.egemoroglu-user-pool.id}/authorize"
+  
+}
+
+resource "aws_apigatewayv2_route" "egemoroglu-user-signup-route" {
+  api_id    = aws_apigatewayv2_api.egemoroglu-user-api.id
+  route_key = "POST /signup"
+  target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-user-integration.id}"
+
+  authorizer_id = aws_apigatewayv2_authorizer.cognito-authorizer.id
+  
+}
+
+resource "aws_apigatewayv2_route" "egemoroglu-user-signin-route" {
+  api_id    = aws_apigatewayv2_api.egemoroglu-user-api.id
+  route_key = "POST /signin"
+  target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-user-integration.id}"
+
+  authorizer_id = aws_apigatewayv2_authorizer.cognito-authorizer.id
+  
+}
+
+output "user-client-id" {
+  value = aws_cognito_user_pool_client.egemoroglu-user-pool-client.id
+  
+}
+
+output "user-pool-id" {
+  value = aws_cognito_user_pool.egemoroglu-user-pool.id
+  
+}
+
+
+
+
 resource "aws_apigatewayv2_integration" "egemoroglu-user-integration" {
   api_id                 = aws_apigatewayv2_api.egemoroglu-user-api.id
   integration_type       = "AWS_PROXY"

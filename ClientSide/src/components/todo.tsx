@@ -3,7 +3,9 @@ import { useLocation } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Layout, Menu, Button, Input } from "antd";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 const { Header, Sider, Content} = Layout;
+
 
 const baseUrl = "https://eq230pbjte.execute-api.us-east-1.amazonaws.com";
 
@@ -24,6 +26,8 @@ export function Todo() {
   const location = useLocation();
   const username = location.state.username;
   const [collapsed, setCollapsed] = useState(false);
+  const accessToken = localStorage.getItem("accessToken");
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -33,7 +37,12 @@ export function Todo() {
   const fetchTodos = async () => {
     try {
       // Make API call to fetch todos for the signed-in user
-      const response = await axios.get(`${baseUrl}/todos?username=${username}`);
+      const response = await axios.get(`${baseUrl}/todos?username=${username}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
+      });
       console.log(response.data);
       if(response.data){
         setTodos(response.data);
@@ -52,6 +61,11 @@ export function Todo() {
         title: newTaskTitle,
         username: username,
         done: false
+      },{
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
       });
       console.log(response.data);
       setNewTaskTitle('');
@@ -64,7 +78,12 @@ export function Todo() {
   const handleDeleteTask = async (todoId: string) => {
     try {
       // Make API call to delete a task
-      const response = await axios.post(`${baseUrl}/delete?todoId=${todoId}`);
+      const response = await axios.post(`${baseUrl}/delete?todoId=${todoId}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
+      });
       console.log(response.data);
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -75,7 +94,13 @@ export function Todo() {
   const handleMarkDone = async (todoId: string) => {
     try{
       // Make API call to mark a task as done
-      const response = await axios.post(`${baseUrl}/markdone?todoId=${todoId}`);
+      const response = await axios.post(`${baseUrl}/markdone?todoId=${todoId}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
+      
+      });
       console.log(response.data);
     } catch (error) {
       console.error('Error marking task as done:', error);
@@ -85,7 +110,13 @@ export function Todo() {
   const handleMarkUndone = async (todoId: string) => {
     try{
       // Make API call to mark a task as undone
-      const response = await axios.post(`${baseUrl}/markUndone?todoId=${todoId}`);
+      const response = await axios.post(`${baseUrl}/markUndone?todoId=${todoId}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
+      
+      });
       console.log(response.data);
     } catch (error) {
       console.error('Error marking task as undone:', error);
@@ -99,6 +130,12 @@ export function Todo() {
       const response = await axios.post(`${baseUrl}/update`, {
         todoId: todoId,
         title: updatedTaskTitle
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      
+      
       });
       console.log(response.data);
       setEditModeId(null);
@@ -107,6 +144,12 @@ export function Todo() {
     }
     setFetchTrigger(!fetchTrigger)
   };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("accessToken");
+    navigate('/signin');
+  };
+
   const handleMenuSelect = ({ key }: { key: string }) => {
     setFilter(key); // Update filter state based on menu selection
   };
@@ -129,6 +172,9 @@ export function Todo() {
             <Menu.Item key="all">All Tasks</Menu.Item>
             <Menu.Item key="done">Completed Tasks</Menu.Item>
             <Menu.Item key="undone">Incompleted Tasks</Menu.Item>
+            <Menu.Item key="signout" onClick={handleSignOut}>
+              <span>Sign Out</span>
+            </Menu.Item>
           </Menu>
         </Sider>
         

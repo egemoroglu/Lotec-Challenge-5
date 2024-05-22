@@ -10,6 +10,7 @@ class UserRepository implements UserInterface {
     }
     async createUser(username: string, password: string): Promise<User> {
         // implementation
+        console.log("User Repository Create User Called");
         const userId = uuidv4().toString();
         const user = new User(userId,username, password);
         await this.db.addUser(user);

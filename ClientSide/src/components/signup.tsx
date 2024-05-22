@@ -5,9 +5,11 @@ import axios from 'axios';
 
 const baseUrl = "https://hf6ib46e75.execute-api.us-east-1.amazonaws.com";
 
+
 export const SignUpPage: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
 
     const handleSignUp = async () => {
         try{

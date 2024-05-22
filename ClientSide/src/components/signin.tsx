@@ -5,6 +5,7 @@ import { Button, Input } from "antd";
 
 const baseUrl = "https://hf6ib46e75.execute-api.us-east-1.amazonaws.com";
 
+
 export const SignInPage: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -16,7 +17,7 @@ export const SignInPage: React.FC = () => {
                 username: username,
                 password: password
             });
-            console.log(response.data);
+            localStorage.setItem("accessToken", response.data.accessToken);
             navigate("/todos", {state: {username: username}});
                
         } catch (error) {
