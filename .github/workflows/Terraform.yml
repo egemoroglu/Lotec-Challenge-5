@@ -32,7 +32,7 @@ jobs:
         npm install
         cd $GITHUB_WORKSPACE/ServerSide/TodoServer
         npm install
-        cd $GITHUN_WORKSPACE/ServerSide/UserServer
+        cd $GITHUB_WORKSPACE/ServerSide/UserServer
         npm install
 
     - name: Setup Terraform
