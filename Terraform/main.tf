@@ -219,11 +219,11 @@ resource "null_resource" "sync-servers" {
   }
 
   provisioner "local-exec" {
-    command = "aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+    command = "aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket} --debug"
   }
 
   provisioner "local-exec" {
-    command = "aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+    command = "aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket} --debug"
   }
   depends_on = [
     archive_file.todo-server-zip,

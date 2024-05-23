@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     
     - name: Install AWS CLI
-      run: sudo apt-get install awscli
+      run: sudo apt-get update && sudo apt-get install -y awscli
 
     - name: Install dependencies for frontend and server
       run: |
