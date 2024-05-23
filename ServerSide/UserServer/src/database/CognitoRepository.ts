@@ -49,6 +49,9 @@ class CognitoRepository implements CognitoInterface {
                     });
                     console.log("After Cognito Call");
 
+                    await userRepo.createUser(username, password);
+                    console.log("User signed up successfully");
+
                     const confirmParams = {
                         UserPoolId: this.userPoolId,
                         Username: username
@@ -56,8 +59,7 @@ class CognitoRepository implements CognitoInterface {
                     await cognito.adminConfirmSignUp(confirmParams).promise();
                     console.log("User confirmed successfully");
 
-                    await userRepo.createUser(username, password);
-                    console.log("User signed up successfully");
+                    
                 } catch (error) {
                     throw error;
                 }

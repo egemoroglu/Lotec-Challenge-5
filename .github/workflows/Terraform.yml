@@ -21,6 +21,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies for frontend and server
+      run: |
+        cd $GITHUB_WORKSPACE/ClientSide
+        npm install
+        cd $GITHUB_WORKSPACE/ServerSide/TodoServer
+        npm install
+        cd $GITHUN_WORKSPACE/ServerSide/UserServer
+        npm install
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:

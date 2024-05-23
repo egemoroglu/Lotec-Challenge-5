@@ -306,15 +306,15 @@ resource "aws_cognito_user_pool" "egemoroglu-user-pool" {
   name = "egemoroglu-user-pool"
   schema {
     attribute_data_type = "String"
-    name                 = "nickname"
-    required             = true
+    name                = "nickname"
+    required            = true
   }
   auto_verified_attributes = ["email"]
-  
+
 }
 
 resource "aws_cognito_user_pool_client" "egemoroglu-user-pool-client" {
-  name = "egemoroglu-user-pool-client"
+  name         = "egemoroglu-user-pool-client"
   user_pool_id = aws_cognito_user_pool.egemoroglu-user-pool.id
 
   explicit_auth_flows = [
@@ -325,12 +325,12 @@ resource "aws_cognito_user_pool_client" "egemoroglu-user-pool-client" {
   ]
 
   prevent_user_existence_errors = "ENABLED"
-  
+
 }
 
 resource "aws_apigatewayv2_authorizer" "cognito-authorizer" {
-  api_id          = aws_apigatewayv2_api.egemoroglu-user-api.id
-  authorizer_type = "JWT"
+  api_id           = aws_apigatewayv2_api.egemoroglu-user-api.id
+  authorizer_type  = "JWT"
   identity_sources = ["$request.header.Authorization"]
   name             = "cognito-authorizer"
   jwt_configuration {
@@ -339,7 +339,7 @@ resource "aws_apigatewayv2_authorizer" "cognito-authorizer" {
   }
 
   authorizer_uri = "arn:aws:apigateway:us-east-1:cognito-idp:path/userpools/${aws_cognito_user_pool.egemoroglu-user-pool.id}/authorize"
-  
+
 }
 
 resource "aws_apigatewayv2_route" "egemoroglu-user-signup-route" {
@@ -348,7 +348,7 @@ resource "aws_apigatewayv2_route" "egemoroglu-user-signup-route" {
   target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-user-integration.id}"
 
   authorizer_id = aws_apigatewayv2_authorizer.cognito-authorizer.id
-  
+
 }
 
 resource "aws_apigatewayv2_route" "egemoroglu-user-signin-route" {
@@ -357,17 +357,17 @@ resource "aws_apigatewayv2_route" "egemoroglu-user-signin-route" {
   target    = "integrations/${aws_apigatewayv2_integration.egemoroglu-user-integration.id}"
 
   authorizer_id = aws_apigatewayv2_authorizer.cognito-authorizer.id
-  
+
 }
 
 output "user-client-id" {
   value = aws_cognito_user_pool_client.egemoroglu-user-pool-client.id
-  
+
 }
 
 output "user-pool-id" {
   value = aws_cognito_user_pool.egemoroglu-user-pool.id
-  
+
 }
 
 
