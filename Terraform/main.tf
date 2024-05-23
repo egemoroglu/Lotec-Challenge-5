@@ -80,17 +80,29 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "egemoroglu-lotec-
 
 }
 
-resource "null_resource" "sync_files_to_s3" {
+resource "null_resource" "build-frontend" {
   triggers = {
     always_run = "${timestamp()}"
   }
 
   provisioner "local-exec" {
-    command = "cd ../ClientSide && npm run build && aws s3 sync ../ClientSide/dist s3://${aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket}"
+    command = "cd ../ClientSide && npm run build"
 
   }
 
 }
+
+resource "aws_s3_bucket_object" "front-end" {
+  for_each = fileset("../ClientSide/dist", "**/*")
+  bucket   = aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket
+  key      = each.key
+  source   = "../ClientSide/dist/${each.key}"
+  depends_on = [
+    null_resource.build-frontend
+  ]
+
+}
+
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket
   policy = data.aws_iam_policy_document.egemoroglu-challenge-5-bucket-policy.json
