@@ -25,6 +25,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    
+    - name: Install AWS CLI
+      run: sudo apt-get install awscli
 
     - name: Install dependencies for frontend and server
       run: |
