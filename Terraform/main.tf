@@ -13,6 +13,8 @@ terraform {
   }
 }
 
+provider "archive" {}
+
 module "tf-state" {
   source      = "./modules/tf-state"
   bucket_name = local.bucket_name
@@ -167,7 +169,7 @@ resource "aws_s3_bucket" "egemoroglu-lambda-bucket" {
 
 }
 
-resource "null_resource" "zip_and_sync_todo" {
+resource "null_resource" "build-todo" {
   triggers = {
     always_run = "${timestamp()}"
 
@@ -177,14 +179,9 @@ resource "null_resource" "zip_and_sync_todo" {
     command = "cd ../ServerSide/TodoServer && npm install && npm run build"
 
   }
-  provisioner "local-exec" {
-    command = "zip -j ../ServerSide/todo-server.zip ../ServerSide/TodoServer/build/server.js && aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
-
-  }
 
 }
-
-resource "null_resource" "zip_and_sync_user" {
+resource "null_resource" "build-user" {
   triggers = {
     always_run = "${timestamp()}"
 
@@ -193,21 +190,57 @@ resource "null_resource" "zip_and_sync_user" {
     command = "cd ../ServerSide/UserServer && npm install && npm run build"
 
   }
-  provisioner "local-exec" {
-    command = "zip -j ../ServerSide/user-server.zip ../ServerSide/UserServer/build/server.js && aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+}
 
+resource "archive_file" "todo-server-zip" {
+  type        = "zip"
+  source_dir  = "../ServerSide/TodoServer/build"
+  output_path = "../ServerSide/todo-server.zip"
+  depends_on = [
+    null_resource.build-todo
+  ]
+}
+
+
+
+resource "archive_file" "user-server-zip" {
+  type        = "zip"
+  source_dir  = "../ServerSide/UserServer/build"
+  output_path = "../ServerSide/user-server.zip"
+  depends_on = [
+    null_resource.build-user
+  ]
+
+}
+
+resource "null_resource" "sync-servers" {
+  triggers = {
+    always_run = "${timestamp()}"
   }
+
+  provisioner "local-exec" {
+    command = "aws s3 cp ../ServerSide/todo-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+  }
+
+  provisioner "local-exec" {
+    command = "aws s3 cp ../ServerSide/user-server.zip s3://${aws_s3_bucket.egemoroglu-lambda-bucket.bucket}"
+  }
+  depends_on = [
+    archive_file.todo-server-zip,
+    archive_file.user-server-zip
+
+  ]
 
 }
 
 data "external" "todo_server_zip_hash" {
   program    = ["bash", "-c", "shasum -a 256 ../ServerSide/todo-server.zip | awk '{print \"{\\\"hash\\\": \\\"\" $1 \"\\\"}\"}'"]
-  depends_on = [null_resource.zip_and_sync_todo]
+  depends_on = [archive_file.todo-server-zip]
 }
 
 data "external" "user_server_zip_hash" {
   program    = ["bash", "-c", "shasum -a 256 ../ServerSide/user-server.zip | awk '{print \"{\\\"hash\\\": \\\"\" $1 \"\\\"}\"}'"]
-  depends_on = [null_resource.zip_and_sync_user]
+  depends_on = [archive_file.user-server-zip]
 }
 
 resource "aws_iam_role" "egemoroglu-lambda-role" {
@@ -268,7 +301,7 @@ resource "aws_lambda_function" "egemoroglu-todo-server" {
   source_code_hash = data.external.todo_server_zip_hash.result.hash
 
   depends_on = [
-    null_resource.zip_and_sync_todo
+    null_resource.sync-servers
   ]
 
 }
@@ -284,7 +317,7 @@ resource "aws_lambda_function" "egemoroglu-user-server" {
 
 
   depends_on = [
-    null_resource.zip_and_sync_user
+    null_resource.sync-servers
   ]
 
 }
