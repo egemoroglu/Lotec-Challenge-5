@@ -20,7 +20,6 @@ const userRepo: UserRepository = new UserRepository();
 
 app.post("/signup", async (req: Request, res: Response) => {
   try {
-    console.log("Signup Called");
     const { username, password } = req.body;
     const user = await cognitoRepo.signUp(username, password);
     res.status(200).send(user);

@@ -25,7 +25,6 @@ class CognitoRepository implements CognitoInterface {
     }
 
     async signUp(username: string, password: string): Promise<void> {
-        console.log("Cognito Repository signup called");
             const params = {
                     ClientId: this.clientId,
                     Password: password,
@@ -40,12 +39,9 @@ class CognitoRepository implements CognitoInterface {
             };
 
             try {
-                    console.log("Before Cognito Call")
                     const result = cognito.signUp({...params}).send((err, result)=>{
                        
-                        console.log("Inside Cognito Call");
                         console.log(err, result)
-                        console.log(this.clientId, username, password);
                     });
                     console.log("After Cognito Call");
 
@@ -77,7 +73,6 @@ class CognitoRepository implements CognitoInterface {
         };
 
         try {
-            console.log("Cognito Repository Signin Called");
             const result = await cognito.initiateAuth(params).promise();
             const user = await userRepo.getUserByUsername(username);
             if (user && user.getPassword() === password) {

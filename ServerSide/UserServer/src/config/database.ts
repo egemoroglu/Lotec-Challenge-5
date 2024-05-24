@@ -32,14 +32,12 @@ export default class DynamoDBService{
     async getUserByUsername(username: string){
         const items = await this.getItems('ege_user');
         const user = items?.find((item: any) => item.username === username);
-        console.log("UserRepo Signin Called")
         return user;
     }
 
 
     //add User to the DynamoDB
     async addUser(user: User){
-        console.log("addUser called");
         const params = {
             TableName: userTable,
             Item: {
