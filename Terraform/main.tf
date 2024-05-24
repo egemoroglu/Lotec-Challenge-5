@@ -181,6 +181,18 @@ resource "aws_s3_bucket" "egemoroglu-lambda-bucket" {
 
 }
 
+resource "null_resource" "install-dependencies" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = "npm install"
+
+  }
+  
+}
+
 resource "null_resource" "build-todo" {
   triggers = {
     always_run = "${timestamp()}"
@@ -188,7 +200,7 @@ resource "null_resource" "build-todo" {
   }
 
   provisioner "local-exec" {
-    command = "cd ../ServerSide/TodoServer && npm install && npm run build"
+    command = "cd ../ServerSide/TodoServer && npm run build"
 
   }
 
