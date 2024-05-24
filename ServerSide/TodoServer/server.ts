@@ -80,10 +80,13 @@ app.post('/markUndone', async (req: Request, res: Response) => {
 })
 
 
+export function StartTodoServer(){
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+
+}
 
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
 
 module.exports.handler = serverless(app);
