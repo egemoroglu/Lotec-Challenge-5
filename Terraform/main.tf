@@ -211,7 +211,7 @@ resource "null_resource" "build-user" {
 
   }
   provisioner "local-exec" {
-    command = "cd ../ServerSide/UserServer && npm install && npm run build"
+    command = "cd ../ServerSide/UserServer && npm run build"
 
   }
 }
