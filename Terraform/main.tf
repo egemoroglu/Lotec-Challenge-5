@@ -92,7 +92,7 @@ resource "null_resource" "build-frontend" {
 
 }
 
-resource "aws_s3_bucket_object" "front-end" {
+resource "aws_s3_object" "front-end" {
   for_each = fileset("../ClientSide/dist", "**/*")
   bucket   = aws_s3_bucket.egemoroglu-lotec-challenge-5-frontend.bucket
   key      = each.key
@@ -190,7 +190,7 @@ resource "null_resource" "install-dependencies" {
     command = "npm install"
 
   }
-  
+
 }
 
 resource "null_resource" "build-todo" {
@@ -237,7 +237,7 @@ resource "archive_file" "user-server-zip" {
 
 }
 
-resource "aws_s3_bucket_object" "todo-server-zip" {
+resource "aws_s3_object" "todo-server-zip" {
   bucket = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
   key    = "todo-server.zip"
   source = "../ServerSide/todo-server.zip"
@@ -246,7 +246,7 @@ resource "aws_s3_bucket_object" "todo-server-zip" {
   ]
 }
 
-resource "aws_s3_bucket_object" "user-server-zip" {
+resource "aws_s3_object" "user-server-zip" {
 
   bucket = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
   key    = "user-server.zip"
@@ -324,7 +324,7 @@ resource "aws_lambda_function" "egemoroglu-todo-server" {
   source_code_hash = data.external.todo_server_zip_hash.result.hash
 
   depends_on = [
-    aws_s3_bucket_object.todo-server-zip
+    aws_s3_object.todo-server-zip
   ]
 
 }
@@ -340,7 +340,7 @@ resource "aws_lambda_function" "egemoroglu-user-server" {
 
 
   depends_on = [
-    aws_s3_bucket_object.user-server-zip
+    aws_s3_object.user-server-zip
   ]
 
 }
