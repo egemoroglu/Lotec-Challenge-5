@@ -27,3 +27,5 @@ AWS Requirements
 - Lambda functions must be configured for both user server and todo server
 - For both lambda functions api gateways must be configured to expose the lambda functions
 - Cognito must be configured for authorization and authentication
+
+Please replace the AWS credentials with your own credentials
