@@ -1,6 +1,5 @@
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
-import CognitoInterface from '../domain/interfaces/CognitoInterface';
 import UserRepository from './UserRepository';
 import path from 'path';
 
@@ -14,7 +13,7 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
-class CognitoRepository implements CognitoInterface {
+class CognitoRepository {
 
     private clientId: string;
     private userPoolId: string;
@@ -75,7 +74,7 @@ class CognitoRepository implements CognitoInterface {
         try {
             const result = await cognito.initiateAuth(params).promise();
             const user = await userRepo.getUserByUsername(username);
-            if (user && user.getPassword() === password) {
+            if (user && user.password === password) {
                 return {
                     AccessToken: result.AuthenticationResult?.AccessToken ?? '',
                     username: username

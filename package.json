@@ -8,12 +8,16 @@
   },
   "workspaces": [
     "ServerSide/*",
-    "ClientSide"
+    "ClientSide",
+    "libs/*"
   ],
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/util-dynamodb": "^3.585.0",
+    "@lotec-challenge-5/database-config": "^1.0.0",
+    "@lotec-challenge-5/types": "^1.0.0",
     "aws-sdk": "^2.1619.0",
     "dotenv": "^16.4.5",
     "path": "^0.12.7"

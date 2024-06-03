@@ -5,7 +5,7 @@ interface TodoInteface{
     getTodoById(todoId: string): Promise<Todo | null>;
     getTodosByUsername(username: string): Promise<Todo[] | null>;
     deleteTodoById(todoId: string): Promise<void>;
-    updateTodoById(todoId: string, title: string): Promise<void>;
+    updateTodoById(todoId: string, todo: Todo): Promise<void>;
     markDone(todoId: string): Promise<void>;
     markUndone(todoId: string): Promise<void>;
 }

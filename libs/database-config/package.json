@@ -1,0 +1,10 @@
+{
+    "name": "@lotec-challenge-5/database-config",
+    "version": "1.0.0",
+    "private": true,
+    "dependencies": {
+      "@aws-sdk/client-dynamodb": "^3.489.0",
+      "@aws-sdk/util-dynamodb": "^3.489.0"
+    }
+
+  }
