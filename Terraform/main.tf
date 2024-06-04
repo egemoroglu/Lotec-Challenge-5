@@ -217,43 +217,47 @@ resource "null_resource" "build-user" {
 }
 
 resource "archive_file" "todo-server-zip" {
-  type        = "zip"
-  source_dir  = "../ServerSide/TodoServer/build"
-  output_path = "../ServerSide/todo-server.zip"
   depends_on = [
     null_resource.build-todo
   ]
+  type        = "zip"
+  source_dir  = "../ServerSide/TodoServer/build"
+  output_path = "../ServerSide/todo-server.zip"
+
 }
 
 
 
 resource "archive_file" "user-server-zip" {
-  type        = "zip"
-  source_dir  = "../ServerSide/UserServer/build"
-  output_path = "../ServerSide/user-server.zip"
   depends_on = [
     null_resource.build-user
   ]
+  type        = "zip"
+  source_dir  = "../ServerSide/UserServer/build"
+  output_path = "../ServerSide/user-server.zip"
+
 
 }
 
 resource "aws_s3_object" "todo-server-zip" {
+  depends_on = [
+    archive_file.todo-server-zip
+  ]
   bucket = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
   key    = "todo-server.zip"
   source = "../ServerSide/todo-server.zip"
-  depends_on = [
-    null_resource.build-todo
-  ]
+
 }
 
 resource "aws_s3_object" "user-server-zip" {
+  depends_on = [
+    archive_file.todo-server-zip
+  ]
 
   bucket = aws_s3_bucket.egemoroglu-lambda-bucket.bucket
   key    = "user-server.zip"
   source = "../ServerSide/user-server.zip"
-  depends_on = [
-    null_resource.build-user
-  ]
+
 }
 
 data "external" "todo_server_zip_hash" {

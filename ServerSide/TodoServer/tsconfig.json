@@ -1,16 +1,22 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "rootDir": "./",
+    "rootDir": "../../",
     "module": "commonjs",
     "target": "es6",
     "esModuleInterop": true,
     "strict": true,
     "baseUrl": "./",
     "paths": {
-      "@config/*": ["./config/*"]
+      "@lotec-challenge-5/database-config/*": [
+        "../../libs/database-config/*"
+      ]
     }
   },
-  "include": ["src/**/*.ts", "./config/**/*.ts", "server.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../../libs/**/*.ts",
+    "server.ts"
+  ],
   "exclude": ["node_modules", "**/*.test.ts"]
 }

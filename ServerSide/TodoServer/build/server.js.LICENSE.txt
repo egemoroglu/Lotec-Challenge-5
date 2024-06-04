@@ -253,6 +253,4 @@ object-assign
  * MIT Licensed
  */
 
-/*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
-
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
