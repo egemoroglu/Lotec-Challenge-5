@@ -66,7 +66,11 @@ terraform.rc
 # Created by https://www.toptal.com/developers/gitignore/api/dotenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=dotenv
 
-### dotenv ###
+# dotenv environment variable files
 .env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
 
 # End of https://www.toptal.com/developers/gitignore/api/dotenv

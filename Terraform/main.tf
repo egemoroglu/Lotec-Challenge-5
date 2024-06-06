@@ -299,7 +299,10 @@ resource "aws_iam_role_policy" "lambda-policy" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "lambda:GetFunction",
+          "lambda:ListFunctions",
+          "s3:GetObject"
         ],
         Effect   = "Allow",
         Resource = "arn:aws:logs:*:*:*"
@@ -360,6 +363,7 @@ resource "aws_apigatewayv2_api" "egemoroglu-user-api" {
   }
 
 }
+
 
 
 resource "aws_cognito_user_pool" "egemoroglu-user-pool" {

@@ -2,7 +2,7 @@
   "name": "userserver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon --exec vite-node server.ts",
     "build": "webpack",

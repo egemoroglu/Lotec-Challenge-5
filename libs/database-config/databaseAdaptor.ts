@@ -1,10 +1,6 @@
 import { DynamoDBClient, QueryCommandInput, QueryCommand, PutItemCommandInput, PutItemCommand, ScanCommand, GetItemCommand, DeleteItemCommand, UpdateItemCommand, ScanCommandInput, GetItemCommandInput, DeleteItemCommandInput, UpdateItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
-import dotenv from 'dotenv';
-import path from 'path';
 import { DatabaseAdaptor } from './index';
-
-dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const region = process.env.REGION;
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;

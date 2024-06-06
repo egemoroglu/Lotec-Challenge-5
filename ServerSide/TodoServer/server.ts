@@ -1,6 +1,4 @@
 import express, {Express, Request, Response} from 'express';
-import path from 'path';
-import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import serverless from 'serverless-http'
@@ -8,7 +6,8 @@ import TodoRepository from './src/database/TodoRepository'
 
 
 const app: Express = express();
-dotenv.config({ path: path.join(__dirname, '../.env') })
+const dbName = process.env.TODO_DB_NAME
+console.log("dbName: ", dbName);
 
 const port = process.env.TODO_SERVER_PORT || 3001;
 app.use(bodyParser.urlencoded({ extended: true }));
