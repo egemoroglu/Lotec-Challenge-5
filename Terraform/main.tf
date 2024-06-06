@@ -302,7 +302,9 @@ resource "aws_iam_role_policy" "lambda-policy" {
           "logs:PutLogEvents",
           "lambda:GetFunction",
           "lambda:ListFunctions",
-          "s3:GetObject"
+          "s3:GetObject",
+          "lambda:InvokeFunction",
+          "apigateway:*"
         ],
         Effect   = "Allow",
         Resource = "arn:aws:logs:*:*:*"
