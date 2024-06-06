@@ -22,9 +22,13 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     libraryTarget: 'commonjs2',
   },
+  optimization: {
+    splitChunks: false,
+    runtimeChunk: false,
+  },
   plugins: [
     new Dotenv({
-      path: path.resolve(__dirname, '.env'), // Path to .env file
+      path: path.resolve(__dirname, '../../.env'), // Path to .env file
     }),
   ],
 };
